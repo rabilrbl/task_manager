@@ -1,0 +1,50 @@
+<!-- View all tasks page -->
+{% extends "task_base.html" %}
+{% block taskent %}
+            <div>
+                {% if tasks %}
+                {% for task in tasks %}
+                <div class="flex flex-row bg-blue-50 px-8 py-5 border-2 border-blue-100 rounded-full shadow-lg shadow-blue-500/50 my-5  items-center">
+                    <div class="">
+                        <a class="" href="{% url 'detail-view' task.external_id %}">
+                            <p class="text-xl font-medium ">
+                                <span class="hover:underline {% if task.completed %}text-red-500 line-through hover:text-red-500 {% else %} text-blue-500 hover:text-blue-500 {%endif%} ">{{ task.title|truncatechars:20 }}</span>&nbsp;<sup class="font-thin">{{task.priority}}</sup>
+                                 <!-- Display date -->
+                            <span class="text-xs font-thin block">
+                                {{ task.date_created }}
+                            </span>
+                            </p>
+                        </a>
+                    </div>
+                    <div class="flex flex-row justify-center items-center ml-auto order-last">
+                        {% if not task.completed %}
+                        &nbsp;&nbsp;
+                        <a href="{% url 'complete-task' task.external_id %}?next={% url request.resolver_match.url_name %}"
+                            class="border-2 border-green-500 hover:bg-green-500 bg-green-50 text-green-500 hover:text-white py-1 px-1 sm:py-2 sm:px-2 rounded-full">
+                            <!-- tick mark -->
+                            <svg class="fill-current h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
+                        </a>
+                        {% endif %}
+                        &nbsp;&nbsp;
+                        <a href="{% url 'edit-task' task.external_id %}?next={% url request.resolver_match.url_name %}" class="border border-2 border-blue-500 bg-blue-50 text-xs hover:bg-blue-500 text-blue-500 hover:text-white py-1 px-1 sm:py-2 sm:px-2 rounded-full">
+                            <!-- Edit mark -->
+                            <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+                            width="24" height="24"
+                            viewBox="0 0 24 24"
+                            class="fill-current h-4 w-4">    <path d="M 18.414062 2 C 18.158062 2 17.902031 2.0979687 17.707031 2.2929688 L 15.707031 4.2929688 L 14.292969 5.7070312 L 3 17 L 3 21 L 7 21 L 21.707031 6.2929688 C 22.098031 5.9019687 22.098031 5.2689063 21.707031 4.8789062 L 19.121094 2.2929688 C 18.926094 2.0979687 18.670063 2 18.414062 2 z M 18.414062 4.4140625 L 19.585938 5.5859375 L 18.292969 6.8789062 L 17.121094 5.7070312 L 18.414062 4.4140625 z M 15.707031 7.1210938 L 16.878906 8.2929688 L 6.171875 19 L 5 19 L 5 17.828125 L 15.707031 7.1210938 z"></path></svg>
+                        </a>
+                        &nbsp;&nbsp;
+                        <a href="{% url 'delete-task' task.external_id %}?next={% url request.resolver_match.url_name %}" class="border border-2 border-red-500 text-xs bg-red-50 hover:bg-red-500 text-red-500 hover:text-white py-1 px-1 sm:py-2 sm:px-2 rounded-full">
+                            <!-- Delete mark -->
+                            <svg class="fill-current h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M6 2l2-2h4l2 2h4v2H2V2h4zM3 6h14l-1 14H4L3 6zm5 2v10h1V8H8zm3 0v10h1V8h-1z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-center text-xl font-bold py-10">
+                    You have no tasks.
+                </p>
+                {% endif %}
+            </div>
+{% endblock %}

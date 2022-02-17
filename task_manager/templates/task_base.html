@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block content %}
+<!-- Uncompleted tasks list -->
+<div class="flex flex-col items-center justify-center">
+    <!-- List all tasks -->
+    <div class="w-full max-w-lg mx-auto">
+        <!-- Add task from -->
+        {% if request.GET.search_active_bar == "true" %}
+        <div class="bg-blue-50 shadow-md px-8 pt-6 pb-8 mb-2 flex flex-col rounded-xl">
+            <!-- Search form -->
+            <div class="search-task">
+                <div class="mb-4">
+                    <!-- Close Button -->
+                    <div class="float-right flex">
+                        <a href="?search_active_bar=false"
+                            class="text-red-500 text-xs items-center p-1 shadow shadow-red-300 rounded-full hover:bg-red-500 hover:text-white">
+                            <!-- close button -->
+                            {{ close|safe }}
+                        </a>
+                    </div>
+                    <h2 class="text-xl font-bold text-center text-gray-600">Search task</h2>
+                </div>
+                <div class="flex flex-col items-center justify-center">
+                    <form action="" method="get">
+                        <div class="flex flex-row items-center justify-center">
+                            <div class="flex flex-col items-center justify-center">
+                                <input type="text" name="search" required placeholder="Title" class="bg-gray-100 shadow shadow-blue-500 rounded-full px-4 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:bg-gray-50 focus:outline-none">
+                                <input type="hidden" name="search_active_bar" value="true">
+                            </div>
+                            <div class="flex flex-col items-center justify-center">
+                                <button type="submit" class="hover:bg-blue-500 ml-1 hover:text-white shadow shadow-blue-500 cursor-pointer text-blue-500 font-bold py-2 px-2 rounded-full ">
+                                    {{ search|safe }}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <div class="bg-blue-50 shadow-md rounded-xl px-8 pt-6 pb-8 mb-4">
+            <!-- Add a clear search button if search is active -->
+            {% if request.GET.search %}
+            <a href="?search_active_bar=false"
+                    class="flex float-right items-center text-sm text-blue-500 border border-blue-500 px-2 py-1 rounded-full hover:bg-blue-500 hover:text-white shadow shadow-blue-500">
+                <!-- clear search button -->
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7.20711 2.54289C7.59763 2.93342 7.59763 3.56658 7.20711 3.95711L5.41421 5.75H13.25C17.6683 5.75 21.25 9.33172 21.25 13.75C21.25 18.1683 17.6683 21.75 13.25 21.75C8.83172 21.75 5.25 18.1683 5.25 13.75C5.25 13.1977 5.69772 12.75 6.25 12.75C6.80228 12.75 7.25 13.1977 7.25 13.75C7.25 17.0637 9.93629 19.75 13.25 19.75C16.5637 19.75 19.25 17.0637 19.25 13.75C19.25 10.4363 16.5637 7.75 13.25 7.75H5.41421L7.20711 9.54289C7.59763 9.93342 7.59763 10.5666 7.20711 10.9571C6.81658 11.3476 6.18342 11.3476 5.79289 10.9571L2.29289 7.45711C1.90237 7.06658 1.90237 6.43342 2.29289 6.04289L5.79289 2.54289C6.18342 2.15237 6.81658 2.15237 7.20711 2.54289Z" fill="currentColor"/>
+                </svg>&nbsp;Clear
+                </a>
+            <div class="flex flex-col justify-center mb-4 mt-2 sm:flex-row">
+                <h2 class="text-2xl font-bold text-center truncate">Tasks containing "{{ request.GET.search }}"</h2>
+            </div>
+            {% else %}
+            <!-- Search Button -->
+            <div class="block float-left">
+                <a href="?search_active_bar=true"
+                    class="flex items-center rounded-full shadow shadow-blue-500 text-xs text-center text-blue-500 hover:bg-blue-500 hover:text-white py-2 px-3">
+                    <!-- search icon -->
+                    {{ search|safe }}&nbsp;Search
+                </a>
+            </div>
+            <div class="block float-right">
+                <a href="{% url 'account_logout' %}"
+                    class="flex border border-red-500 shadow shadow-red-500 text-center font-medium hover:bg-red-500 text-xs text-red-500 hover:text-white py-2 px-3 rounded-full">
+                    <!-- logout icon -->
+                    Logout&nbsp;
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
+                </a>
+            </div>
+                <div class="flex items-center justify-center">
+                    <div class="mb-2 order-0 ">
+                        <h2 class=" text-2xl text-center">Hi <span class="capitalize font-bold">{{ request.user }}</span></h2>
+                        <p class="text-center">
+                            {{ completed_tasks }} of {{ total_tasks }} tasks completed
+                        </p>
+                    </div>
+                </div>
+                <ul class="flex justify-center mt-2 font-medium">
+                    {% with page=request.resolver_match.url_name active="bg-blue-200 text-blue-600 rounded-full" default="py-1 px-4 mx-2" hover="hover:underline hover:text-blue-600" %}
+                    <li class="{% if page == "all-tasks" %} {{ active }} {% else %} {{ hover }} {% endif %} {{ default }}"><a href="{% url 'all-tasks' %}">&nbsp;&nbsp;&nbsp;All&nbsp;&nbsp;&nbsp;</a></li>
+                    <li class="{% if page == "tasks" %} {{ active }} {% else %} {{ hover }} {% endif %} {{ default }}"><a href="{% url 'tasks' %}">&nbsp;Pending&nbsp;</a></li>
+                    <li class="{% if page == "completed-tasks" %} {{ active }} {% else %} {{ hover }} {% endif %} {{ default }}"><a href="{% url 'completed-tasks' %}">Completed</a></li>
+                    {% endwith %}
+                </ul>
+            <!-- PLus button svg -->
+            <div class="flex justify-center">
+            </div>
+            {% endif %}
+            <!-- <div class="flex flex-col items-center justify-center">
+                <a href=""
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Create a new task
+                </a>
+            </div> -->
+            <!-- List uncompleted tasks -->
+            <div>
+                <div class="">
+                    {% block taskent %}
+                    {% endblock %}
+                    {% if paginator.page_range|length > 1 %}
+                    <!-- Page selector -->
+                    <div class="flex flex-row justify-center items-center my-2">
+                    {% for page in paginator.page_range %}
+                        &nbsp;&nbsp;
+                        <a href="?page={{page}}{% if request.GET.search %}&search={{request.GET.search}}{% endif %}{% if request.GET.search_active_bar %}&search_active_bar={{request.GET.search_active_bar}}{% endif %}"
+                            class="border border-blue-500 bg-blue-50 text-blue-500 text-xs text-center font-medium hover:bg-blue-500 hover:text-white px-2 py-1 rounded-full">
+                            {{page}}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <div class="flex justify-center"><a href="{% url 'create-task' %}?next={% url request.resolver_match.url_name %}"><button type="button" class="mt-2 bg-blue-500 hover:bg-blue-600 cursor-pointer text-white font-medium py-2 px-10 rounded-full w-[20rem] shadow-lg shadow-blue-500/50">Add</button></a>
+                    </div>
+                    <!-- User Reports button -->
+                <div class="flex justify-center -mb-5 mt-2 hover:underline hover:text-blue-700 text-blue-500 text-xs font-medium"><a href="/reports" class="text-center">Manage Daily Reports</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

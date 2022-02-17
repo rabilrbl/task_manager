@@ -1,0 +1,16 @@
+{% extends "task_wall.html" %}
+{% block title %} Delete Task {% endblock %}
+{% block walent %}
+    <!-- Delete confirmation -->
+    <div class="space-y-5">
+        <h2 class="text-2xl font-medium text-gray-800">Are you sure you want to delete task with title <span class="font-bold">"{{object}}"</span>?</h2>
+        <form action="" method="post">
+            {{ form.non_field_errors }}
+            {{ form.hidden_tag }}
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{request.GET.next}}">
+                <button type="submit" class="w-full mt-2 bg-red-500 hover:bg-red-600 cursor-pointer text-white font-medium py-2 px-10 rounded-full shadow-lg shadow-red-500/50">Delete</button>
+        </form>
+            <button onclick="history.back()" class="w-full mt-2 bg-blue-500 hover:bg-blue-600 cursor-pointer text-white font-medium py-2 px-10 rounded-full shadow-lg shadow-blue-500/50">Cancel</button>
+    </div>
+{% endblock %}

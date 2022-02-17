@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<!-- Uncompleted tasks list -->
+<div class="flex flex-col items-center justify-center">
+    <!-- List all tasks -->
+    <div class="w-full max-w-lg mx-auto">
+        <div class="bg-blue-50 shadow-md rounded px-8 pt-6 pb-8 mb-4 rounded-xl">
+            {% block walent %}
+            {% endblock %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}
