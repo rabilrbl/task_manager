@@ -340,3 +340,5 @@ SPECTACULAR_SETTINGS = {
 }
 # Your stuff...
 # ------------------------------------------------------------------------------
+# Tailwindcss
+TAILWIND_APP_NAME = 'task_manager'
