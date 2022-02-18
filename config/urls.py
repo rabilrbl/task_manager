@@ -12,7 +12,7 @@ from task_manager.tasks.views import (
      EditTaskView, GenericAllTaskView,
      GenericCompletedListView,
      TaskDetailView, DeleteTaskView, CompleteTaskView,
-     CreateTimeView, LoginView, SignUpView
+     CreateTimeView, LoginView, SignUpView, GenericCancelledListView, GenericInProgressListView
 )
 
 from task_manager.tasks.api.views import TaskViewSet, HistoryViewSet
@@ -78,6 +78,8 @@ urlpatterns += [
     path("completed-tasks/", GenericCompletedListView.as_view(),
          name="completed-tasks"),
     path("all-tasks/", GenericAllTaskView.as_view(), name="all-tasks"),
+    path("in-progress/", GenericInProgressListView.as_view(), name="in-progress"),
+    path("cancelled/", GenericCancelledListView.as_view(), name="cancelled"),
     path("reports/", CreateTimeView.as_view(), name="reports"),
 ] + router.urls + client_router.urls
 

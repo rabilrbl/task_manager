@@ -38,7 +38,7 @@
             </div>
         </div>
         {% endif %}
-        <div class="bg-blue-50 shadow-md rounded-xl px-8 pt-6 pb-8 mb-4">
+        <div class="bg-blue-50 shadow-md rounded-xl px-4 sm:px-8 pt-6 pb-8 mb-4">
             <!-- Add a clear search button if search is active -->
             {% if request.GET.search %}
             <a href="?search_active_bar=false"
@@ -54,14 +54,15 @@
             <!-- Search Button -->
             <div class="block float-left">
                 <a href="?search_active_bar=true"
-                    class="flex items-center rounded-full shadow shadow-blue-500 text-xs text-center text-blue-500 hover:bg-blue-500 hover:text-white py-2 px-3">
-                    <!-- search icon -->
-                    {{ search|safe }}&nbsp;Search
-                </a>
-            </div>
-            <div class="block float-right">
-                <a href="{% url 'account_logout' %}"
-                    class="flex border border-red-500 shadow shadow-red-500 text-center font-medium hover:bg-red-500 text-xs text-red-500 hover:text-white py-2 px-3 rounded-full">
+                class="flex items-center rounded-full shadow shadow-blue-500 text-xs text-center text-blue-500 hover:bg-blue-500 hover:text-white py-2 px-3">
+                <!-- search icon -->
+                {{ search|safe }}&nbsp;Search
+            </a>
+        </div>
+        {% endif %}
+        <div class="block float-right">
+            <a href="{% url 'account_logout' %}"
+            class="flex border border-red-500 shadow shadow-red-500 text-center font-medium hover:bg-red-500 text-xs text-red-500 hover:text-white py-2 px-3 rounded-full">
                     <!-- logout icon -->
                     Logout&nbsp;
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -83,11 +84,30 @@
                     <li class="{% if page == "tasks" %} {{ active }} {% else %} {{ hover }} {% endif %} {{ default }}"><a href="{% url 'tasks' %}">&nbsp;Pending&nbsp;</a></li>
                     <li class="{% if page == "completed-tasks" %} {{ active }} {% else %} {{ hover }} {% endif %} {{ default }}"><a href="{% url 'completed-tasks' %}">Completed</a></li>
                     {% endwith %}
+                    <!-- Down Arrow --> 
+                    <button onclick="document.getElementById('task-nav-ext').classList.toggle('hidden')" class="order-last items-center border-2 border-blue-500 px-2 py-1 rounded-full hover:bg-blue-500 hover:text-white shadow-lg shadow-blue-500/50">
+                        <svg id="taskNavTtn" class="w-4 h-4" fill="blue" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 330 330">
+                        <path id="XMLID_225_" d="M325.607,79.393c-5.857-5.857-15.355-5.858-21.213,0.001l-139.39,139.393L25.607,79.393
+                            c-5.857-5.857-15.355-5.858-21.213,0.001c-5.858,5.858-5.858,15.355,0,21.213l150.004,150c2.813,2.813,6.628,4.393,10.606,4.393
+                            s7.794-1.581,10.606-4.394l149.996-150C331.465,94.749,331.465,85.251,325.607,79.393z"/>
+                        </svg>
+                    </button>
+
                 </ul>
-            <!-- PLus button svg -->
-            <div class="flex justify-center">
+            <div onclick="taskNavHit()" id="task-nav-ext" class="hidden flex flex-row justify-center mt-2 text-center">
+                <ul class="flex flex-row">
+                    {% with page=request.resolver_match.url_name active="bg-blue-200 text-blue-600 rounded-full" default="py-1 px-4 font-medium" hover="hover:underline hover:text-blue-600" %}
+                    <li class="{% if page == "in-progress" %} {{ active }} {% else %} {{ hover }} {% endif %} {{ default }}"><a href="{% url 'in-progress' %}">In Progress</a></li>
+                    <li class="{% if page == "cancelled" %} {{ active }} {% else %} {{ hover }} {% endif %} {{ default }}"><a href="{% url 'cancelled' %}">Cancelled</a></li>
+                    {% endwith %}
+                </ul>
             </div>
-            {% endif %}
+            <script>
+                const taskNavHit = () => {
+                    document.getElementById('task-nav-ext').classList.toggle('hidden');
+                };
+              </script>
             <!-- <div class="flex flex-col items-center justify-center">
                 <a href=""
                     class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">

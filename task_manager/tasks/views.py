@@ -286,7 +286,35 @@ class GenericCompletedListView(AuthorizedUserMixin, ListView):
     def get_queryset(self):
         search_query = self.request.GET.get('search')
         tasks = super().get_queryset().filter(
-            completed=True,
+            status='completed'
+            ).order_by('priority')
+        if search_query:
+            tasks = tasks.filter(title__icontains=search_query)
+        return tasks
+
+class GenericInProgressListView(AuthorizedUserMixin, ListView):
+    template_name = 'tasks.html'
+    context_object_name = 'tasks'
+    paginate_by = 5
+
+    def get_queryset(self):
+        search_query = self.request.GET.get('search')
+        tasks = super().get_queryset().filter(
+            status="in_progress",
+            ).order_by('priority')
+        if search_query:
+            tasks = tasks.filter(title__icontains=search_query)
+        return tasks
+
+class GenericCancelledListView(AuthorizedUserMixin, ListView):
+    template_name = 'tasks.html'
+    context_object_name = 'tasks'
+    paginate_by = 5
+
+    def get_queryset(self):
+        search_query = self.request.GET.get('search')
+        tasks = super().get_queryset().filter(
+            status="cancelled",
             ).order_by('priority')
         if search_query:
             tasks = tasks.filter(title__icontains=search_query)
