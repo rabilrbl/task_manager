@@ -1,13 +1,13 @@
 
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from django.core.mail import send_mail
 from task_manager.tasks.models import Task, Report
+from celery.decorators import periodic_task
 
-from config import celery_app as app
+# from config import celery_app as app
 
 
-@app.task
-def send_email_report(report) -> None:
+def send_email_report(self, report) -> None:
     user = report.user
     task = Task.objects.filter(user=user, deleted=False)
     print(f"Sending email reminder to {user.username}\n")
@@ -25,29 +25,27 @@ def send_email_report(report) -> None:
     """
     send_mail(
         "Task Manager Report",
-        email_content,
+        (email_content),
         "tasks@gdctasks.com",
-        [user.email]
+        [user.email],
+        fail_silently=False,  # Throw exception if email fails to send
     )
+    # increment by a day
+    report.send_time += timedelta(days=1)
     print("Email sent to {}".format(user.email))
 
 
-@app.task
+@periodic_task(run_every=timedelta(minute=1))
 def periodic_emailer():
     currentTime = datetime.now()
     print("Checking time for user daily report......")
     reports = Report.objects.filter(
-        time__range=(
-            time(currentTime.hour, currentTime.minute, 0),
-            time(currentTime.hour, currentTime.minute, 59)
-        ),
+        send_time__lte=currentTime,
         consent=True
     )
     for rpt in reports:
         send_email_report(rpt)
 
-
-app.conf.beat_schedule["send-daily-user-report"] = {
-    'task': 'task_manager.tasks.tasks.periodic_emailer',
-    'schedule': 60.0,
-}
+# Design a email scheduler for daily report and retry on server failure
+# https://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html#task-scheduling
+# https://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html#task-scheduling-decorators

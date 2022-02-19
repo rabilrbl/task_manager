@@ -19,6 +19,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 from django.contrib.auth import get_user_model
 
+from datetime import timedelta
+
 
 User = get_user_model()
 
@@ -340,18 +342,23 @@ class GenericAllTaskView(AuthorizedUserMixin, ListView):
 class ReportTimeForm(ModelForm):
     class Meta:
         model = Report
-        fields = ['time', 'consent']
-
+        fields = ['send_time', 'consent']
 
 class CreateTimeView(AuthorizedUserMixin, UpdateView):
     form_class = ReportTimeForm
     template_name = 'reports.html'
+    success_url = '/tasks/'
 
     def get_form(self):
         form = super(CreateTimeView, self).get_form()
         form.fields['consent'].widget.attrs.update(
             {'class': SignUpView.checkboxCssClass})
         return form
+    
+    def form_valid(self, form):
+        time = self.request.POST['time'].split(":")
+        form.instance.send_time = form.instance.send_time.replace(hour=int(time[0]), minute=int(time[1]))
+        return super().form_valid(form)
 
     def get_object(self):
         return Report.objects.get_or_create(user=self.request.user)[0]

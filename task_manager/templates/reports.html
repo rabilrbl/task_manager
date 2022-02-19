@@ -6,9 +6,9 @@
         {% csrf_token %}
         <div class="w-full">
             <label for="{{form.time.id}}" class="text-gray-700 text-xl font-bold">Choose time for report</label>
-            <input type="time" name="time" {% if form.time.value != None %}value="{{ form.time.value|safe }}"{% endif %} class="bg-gray-50 focus:bg-white border border-gray-200 rounded-lg px-4 py-2 focus:ring shadow-lg focus:ring-blue-400 shadow-blue-200 focus:outline-none focus:shadow-outline w-full" id="{{ form.time.id }}">
-            <span class="text-red-600 font-medium text-sm">{{ form.errors.time }}</span>
-            <div class="text-sm mt-2">{{ form.time.help_text }} </div>
+            <input type="time" name="time" {% if form.send_time.value != None %}value="{{ form.send_time.value.hour }}:{{ form.send_time.value.minute }}:00"{% endif %} class="bg-gray-50 focus:bg-white border border-gray-200 rounded-lg px-4 py-2 focus:ring shadow-lg focus:ring-blue-400 shadow-blue-200 focus:outline-none focus:shadow-outline w-full">
+            <span class="text-red-600 font-medium text-sm">{{ form.errors.send_time }}</span>
+            <div class="text-sm mt-2">{{ form.send_time.help_text }} </div>
         </div>
         <div>
             <div class="flex items-center space-x-2 w-full">
