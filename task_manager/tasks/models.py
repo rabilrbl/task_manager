@@ -7,7 +7,8 @@ from django.db.models import signals
 from django.dispatch import receiver
 
 from uuid import uuid4
-from datetime import datetime, time
+from datetime import datetime, time, tzinfo
+import pytz
 
 STATUS_CHOICES = (
     ("pending", "Pending"),
@@ -88,7 +89,7 @@ class Report(models.Model):
     consent = models.BooleanField(
         default=False, help_text="Uncheck to stop receiving reports")
     send_time = models.DateTimeField(
-        default=datetime.now, help_text="Enter UTC time in HH:MM", editable=True, blank=True)
+        default=datetime.now(tz=pytz.UTC).strftime("%Y-%m-%d %H:%M:00"), help_text="Enter UTC time in HH:MM", editable=True, blank=True)
 
     def __str__(self) -> str:
         return self.user.username

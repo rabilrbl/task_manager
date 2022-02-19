@@ -1,5 +1,6 @@
 
 from datetime import datetime, time, timedelta
+from pytz import timezone
 from django.core.mail import send_mail
 from task_manager.tasks.models import Task, Report
 from celery.decorators import periodic_task
@@ -7,7 +8,7 @@ from celery.decorators import periodic_task
 # from config import celery_app as app
 
 
-def send_email_report(self, report) -> None:
+def send_email_report(report) -> None:
     user = report.user
     task = Task.objects.filter(user=user, deleted=False)
     print(f"Sending email reminder to {user.username}\n")
@@ -32,12 +33,13 @@ def send_email_report(self, report) -> None:
     )
     # increment by a day
     report.send_time += timedelta(days=1)
+    report.save()
     print("Email sent to {}".format(user.email))
 
 
-@periodic_task(run_every=timedelta(minute=1))
+@periodic_task(run_every=timedelta(minutes=1))
 def periodic_emailer():
-    currentTime = datetime.now()
+    currentTime = datetime.now(timezone('UTC'))
     print("Checking time for user daily report......")
     reports = Report.objects.filter(
         send_time__lte=currentTime,
@@ -45,7 +47,3 @@ def periodic_emailer():
     )
     for rpt in reports:
         send_email_report(rpt)
-
-# Design a email scheduler for daily report and retry on server failure
-# https://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html#task-scheduling
-# https://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html#task-scheduling-decorators

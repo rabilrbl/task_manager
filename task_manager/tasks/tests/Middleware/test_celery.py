@@ -3,7 +3,8 @@ from task_manager.tasks.tasks import periodic_emailer
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from task_manager.tasks.models import Task, Report
-from datetime import datetime, time
+from datetime import datetime, timedelta
+import pytz
 from django.core import mail
 
 
@@ -26,9 +27,6 @@ class TestCelery(TestCase):
         user1 = User.objects.create_user(**users[0])
         user2 = User.objects.create_user(**users[1])
 
-        hour = datetime.now().hour
-        min = datetime.now().minute
-
         Task.objects.create(user=user1, title="test")
         Task.objects.create(user=user1, title="test", status="completed")
         Task.objects.create(user=user1, title="test", status="cancelled")
@@ -36,10 +34,24 @@ class TestCelery(TestCase):
         Task.objects.create(user=user2, title="test")
         Task.objects.create(user=user2, title="test", status="in_progress")
 
-        Report.objects.create(user=user1, consent=True, time=time(hour=hour, minute=min))
-        Report.objects.create(user=user2, consent=True, time=time(hour=hour, minute=min))
+        r1 = Report.objects.create(user=user1, consent=True)
+        r2 = Report.objects.create(user=user2, consent=True)
+        
+        actualtime = datetime.now(tz=pytz.UTC)
+        
+        r1.send_time = actualtime - timedelta(days=1)
+        r2.send_time = actualtime - timedelta(days=1)
+        r1.save()
+        r2.save()
 
         periodic_emailer()
+
+        r1 = Report.objects.get(user=user1, consent=True)
+        r2 = Report.objects.get(user=user2, consent=True)
+
+        self.assertEqual(r1.send_time, actualtime)
+        self.assertEqual(r2.send_time, actualtime)
+
 
         self.assertEqual(len(mail.outbox), 2)
         
