@@ -9,12 +9,14 @@ from rest_framework.serializers import BaseSerializer, ModelSerializer
 
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 
 from django_filters.rest_framework import (
     DjangoFilterBackend, FilterSet,
     CharFilter, ChoiceFilter, IsoDateTimeFilter,
 )
 
+from drf_yasg.utils import swagger_auto_schema
 
 class FilterClass(FilterSet):
     title = CharFilter(lookup_expr="icontains")
@@ -50,7 +52,13 @@ class TaskSerializer(ModelSerializer):
             "status", "created_by", "board"
         ]
 
-class TaskViewSet(ModelViewSet):
+class TaskViewSet(ModelViewSet, APIView):
+    """
+
+    All tasks operations are performed by the user who created the task.
+
+    """
+
 
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
@@ -59,6 +67,10 @@ class TaskViewSet(ModelViewSet):
 
     filter_backends = (DjangoFilterBackend,)
     filterset_class = FilterClass
+
+    # define custom tag for swagger documentation of this viewset
+    # https://www.django-rest-framework.org/api-guide/swagger/
+
 
     def get_queryset(self):
         return Task.objects.filter(user=self.request.user, deleted=False)
