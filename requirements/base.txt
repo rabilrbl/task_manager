@@ -26,5 +26,5 @@ django-filter
 drf-nested-routers
 django-tailwind
 drf-yasg
-rest_framework_simplejwt
+djangorestframework-simplejwt 
 django-rest-auth
