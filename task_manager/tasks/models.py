@@ -21,10 +21,8 @@ STATUS_CHOICES = (
 class History(models.Model):
 
     task = models.ForeignKey("Task", on_delete=models.CASCADE)
-    old_status = models.CharField(
-        max_length=100, choices=STATUS_CHOICES, default="n/a")
-    new_status = models.CharField(
-        max_length=100, choices=STATUS_CHOICES, default="n/a")
+    old_status = models.CharField(max_length=100, choices=STATUS_CHOICES, default="n/a")
+    new_status = models.CharField(max_length=100, choices=STATUS_CHOICES, default="n/a")
     change_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -33,7 +31,8 @@ class History(models.Model):
 
 class Task(models.Model):
     external_id = models.UUIDField(
-        default=uuid4, unique=True, db_index=True, editable=False)
+        default=uuid4, unique=True, db_index=True, editable=False
+    )
     title = models.CharField(max_length=100)
     priority = models.IntegerField(default=0)
     description = models.TextField(max_length=500, blank=True)
@@ -41,7 +40,8 @@ class Task(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     deleted = models.BooleanField(default=False)
     status = models.CharField(
-        max_length=100, choices=STATUS_CHOICES, default=STATUS_CHOICES[0][0])
+        max_length=100, choices=STATUS_CHOICES, default=STATUS_CHOICES[0][0]
+    )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -50,7 +50,7 @@ class Task(models.Model):
     def soft_delete(self):
         self.deleted = True
         self.save()
-    
+
     def delete(self):
         self.deleted = True
         self.save()
@@ -63,7 +63,8 @@ class Task(models.Model):
         taskList = []  # store tasks to update
         try:
             taskCheck = Task.objects.get(
-                priority=pr, status=status, user=user, deleted=False)
+                priority=pr, status=status, user=user, deleted=False
+            )
             if taskCheck.pk == self.pk and taskCheck.priority == self.priority:
                 raise Task.DoesNotExist
             while taskCheck:  # keep finding until DoesNotExist
@@ -71,12 +72,12 @@ class Task(models.Model):
                 taskCheck.priority = pr  # increment priority
                 taskList.append(taskCheck)  # append task to update
                 taskCheck = Task.objects.get(
-                    priority=pr, status=status,
-                    user=user, deleted=False)  # update to next task
+                    priority=pr, status=status, user=user, deleted=False
+                )  # update to next task
         except Task.DoesNotExist:  # on error
             pass  # skip
         if taskList:
-            Task.objects.bulk_update(taskList, ['priority'])  # save at once
+            Task.objects.bulk_update(taskList, ["priority"])  # save at once
 
         # mark completed
         self.completed = self.status == "completed"
@@ -85,11 +86,19 @@ class Task(models.Model):
 
 
 class Report(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE,)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+    )
     consent = models.BooleanField(
-        default=False, help_text="Uncheck to stop receiving reports")
+        default=False, help_text="Uncheck to stop receiving reports"
+    )
     send_time = models.DateTimeField(
-        default=datetime.now(tz=pytz.UTC).strftime("%Y-%m-%d %H:%M:00"), help_text="Enter UTC time in HH:MM", editable=True, blank=True)
+        default=datetime.now(tz=pytz.UTC).strftime("%Y-%m-%d %H:%M:00"),
+        help_text="Enter UTC time in HH:MM",
+        editable=True,
+        blank=True,
+    )
 
     def __str__(self) -> str:
         return self.user.username
@@ -102,6 +111,6 @@ def task_pre_save(sender, instance, **kwargs):
         old_status = sender.objects.get(pk=instance.pk).status
         if old_status != instance.status:
             history = History.objects.create(
-                task=instance, new_status=instance.status,
-                old_status=old_status)
+                task=instance, new_status=instance.status, old_status=old_status
+            )
             history.save()

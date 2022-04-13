@@ -1,4 +1,5 @@
 
+from http.client import responses
 from task_manager.tasks.models import History, Task, STATUS_CHOICES
 from django.contrib.auth import get_user_model
 
@@ -7,6 +8,7 @@ User = get_user_model()
 from rest_framework.serializers import ModelSerializer
 
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from rest_framework.views import APIView
 
 from rest_framework.permissions import IsAuthenticated
 
@@ -15,6 +17,8 @@ from django_filters.rest_framework import (
     CharFilter, ChoiceFilter, IsoDateTimeFilter,
 )
 
+from django.utils.decorators import method_decorator
+from drf_yasg.utils import swagger_auto_schema
 
 class FilterClass(FilterSet):
     title = CharFilter(lookup_expr="icontains")
@@ -31,6 +35,7 @@ class FilterClass(FilterSet):
 class UserSerializer(ModelSerializer):
     class Meta:
         model = User
+        ref_name = "user"
         fields = ("name", "username")
 
 
@@ -47,7 +52,9 @@ class TaskSerializer(ModelSerializer):
             "status", "user",
         ]
 
-
+@method_decorator(name="list", decorator=swagger_auto_schema(
+    operation_description="List all tasks",
+))
 class TaskViewSet(ModelViewSet):
 
     queryset = Task.objects.all()

@@ -25,3 +25,6 @@ drf-spectacular==0.21.2
 django-filter
 drf-nested-routers
 django-tailwind
+drf-yasg
+rest_framework_simplejwt
+django-rest-auth
