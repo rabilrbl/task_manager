@@ -49,7 +49,7 @@ class Task(models.Model):
         max_length=100, choices=STATUS_CHOICES, default=STATUS_CHOICES[0][0]
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    board = models.ForeignKey("Board", on_delete=models.CASCADE, default=1)
+    board = models.ForeignKey("Board", on_delete=models.CASCADE)
     def __str__(self):
         return self.title
 
