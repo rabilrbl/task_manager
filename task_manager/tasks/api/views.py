@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import BaseSerializer, ModelSerializer
 
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework.permissions import IsAuthenticated
@@ -15,8 +15,6 @@ from django_filters.rest_framework import (
     CharFilter, ChoiceFilter, IsoDateTimeFilter,
 )
 
-from django.utils.decorators import method_decorator
-from drf_yasg.utils import swagger_auto_schema
 
 class FilterClass(FilterSet):
     title = CharFilter(lookup_expr="icontains")
@@ -30,7 +28,7 @@ class FilterClass(FilterSet):
     status = ChoiceFilter(choices=STATUS_CHOICES)
 
 
-class UserSerializer(ModelSerializer):
+class UserSerializer(BaseSerializer):
     class Meta:
         model = User
         ref_name = "user"
@@ -39,16 +37,17 @@ class UserSerializer(ModelSerializer):
 
 class TaskSerializer(ModelSerializer):
 
-    user = UserSerializer(read_only=True)
     status = ChoiceFilter(choices=STATUS_CHOICES)
     priority = ChoiceFilter(choices=PRIORITY_CHOICES)
+    created_by = UserSerializer(read_only=True)
+
 
     class Meta:
         model = Task
         fields = [
             "id", "title", "priority",
             "description", "date_created",
-            "status", "user", "board"
+            "status", "created_by", "board"
         ]
 
 class TaskViewSet(ModelViewSet):
@@ -111,7 +110,7 @@ class HistoryViewSet(ReadOnlyModelViewSet):
 class BoardSerializer(ModelSerializer):
     class Meta:
         model = Board
-        fields = ["title", "description" , "created_at"]
+        fields = ["id", "title", "description" , "created_at"]
 
 
 class BoardViewSet(ModelViewSet):
