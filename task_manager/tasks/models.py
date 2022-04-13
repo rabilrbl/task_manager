@@ -1,3 +1,4 @@
+from asyncio import tasks
 from django.db import models
 from django.contrib.auth import get_user_model
 
@@ -17,6 +18,11 @@ STATUS_CHOICES = (
     ("cancelled", "Cancelled"),
 )
 
+PRIORITY_CHOICES = (
+    ("low", "Low"),
+    ("medium", "Medium"),
+    ("high", "High"),
+)
 
 class History(models.Model):
 
@@ -34,7 +40,7 @@ class Task(models.Model):
         default=uuid4, unique=True, db_index=True, editable=False
     )
     title = models.CharField(max_length=100)
-    priority = models.IntegerField(default=0)
+    priority = models.CharField(max_length=100, choices=PRIORITY_CHOICES)
     description = models.TextField(max_length=500, blank=True)
     completed = models.BooleanField(default=False)
     date_created = models.DateTimeField(auto_now_add=True)
@@ -43,7 +49,7 @@ class Task(models.Model):
         max_length=100, choices=STATUS_CHOICES, default=STATUS_CHOICES[0][0]
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-
+    board = models.ForeignKey("Board", on_delete=models.CASCADE, default=1)
     def __str__(self):
         return self.title
 
@@ -83,6 +89,22 @@ class Task(models.Model):
         self.completed = self.status == "completed"
 
         super(Task, self).save(*args, **kwargs)
+
+
+class Board(models.Model):
+    title = models.CharField(max_length=100)
+    description = models.TextField(max_length=500, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    deleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def soft_delete(self):
+        self.deleted = True
+        self.save()
+
+    def __str__(self):
+        return self.title
 
 
 class Report(models.Model):

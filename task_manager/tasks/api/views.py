@@ -1,6 +1,6 @@
 
 from http.client import responses
-from task_manager.tasks.models import History, Task, STATUS_CHOICES
+from task_manager.tasks.models import Board, History, Task, STATUS_CHOICES, PRIORITY_CHOICES
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -8,8 +8,6 @@ User = get_user_model()
 from rest_framework.serializers import ModelSerializer
 
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-from rest_framework.views import APIView
-
 from rest_framework.permissions import IsAuthenticated
 
 from django_filters.rest_framework import (
@@ -43,18 +41,16 @@ class TaskSerializer(ModelSerializer):
 
     user = UserSerializer(read_only=True)
     status = ChoiceFilter(choices=STATUS_CHOICES)
+    priority = ChoiceFilter(choices=PRIORITY_CHOICES)
 
     class Meta:
         model = Task
         fields = [
             "id", "title", "priority",
             "description", "date_created",
-            "status", "user",
+            "status", "user", "board"
         ]
 
-@method_decorator(name="list", decorator=swagger_auto_schema(
-    operation_description="List all tasks",
-))
 class TaskViewSet(ModelViewSet):
 
     queryset = Task.objects.all()
@@ -111,3 +107,27 @@ class HistoryViewSet(ReadOnlyModelViewSet):
             task=self.kwargs["history_pk"],
             task__user=self.request.user, task__deleted=False,
         ).order_by("-change_date")
+
+class BoardSerializer(ModelSerializer):
+    class Meta:
+        model = Board
+        fields = ["title", "description" , "created_at"]
+
+
+class BoardViewSet(ModelViewSet):
+    
+        permission_classes = (IsAuthenticated,)
+    
+        queryset = Board.objects.all()
+        serializer_class = BoardSerializer
+    
+        def get_queryset(self):
+            return Board.objects.filter(user=self.request.user, deleted=False)
+    
+        def perform_create(self, serializer):
+            return serializer.save(user=self.request.user)
+    
+        def perform_destroy(self, instance):
+            return instance.soft_delete()
+
+
