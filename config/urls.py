@@ -78,8 +78,8 @@ urlpatterns += [
     ),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path(r'auth/', include('rest_auth.urls')),
-    path(r'auth/registration/', include('rest_auth.registration.urls')),
+    path(r'api/auth/', include('rest_auth.urls')),
+    path(r'api/auth/registration/', include('rest_auth.registration.urls')),
 ]
 
 router = DefaultRouter()
