@@ -1,22 +1,35 @@
 
 from http.client import responses
-from task_manager.tasks.models import Board, History, Task, STATUS_CHOICES, PRIORITY_CHOICES
+from urllib import response
+
 from django.contrib.auth import get_user_model
+
+from task_manager.tasks.models import (
+    PRIORITY_CHOICES,
+    STATUS_CHOICES,
+    Board,
+    History,
+    Task,
+)
 
 User = get_user_model()
 
-from rest_framework.serializers import BaseSerializer, ModelSerializer
-
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.views import APIView
-
 from django_filters.rest_framework import (
-    DjangoFilterBackend, FilterSet,
-    CharFilter, ChoiceFilter, IsoDateTimeFilter,
+    CharFilter,
+    ChoiceFilter,
+    DjangoFilterBackend,
+    FilterSet,
+    IsoDateTimeFilter,
 )
-
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.serializers import BaseSerializer, ModelSerializer
+from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+
+# Import Count and Response
+from rest_framework.response import Response
+
 
 class FilterClass(FilterSet):
     title = CharFilter(lookup_expr="icontains")
@@ -127,12 +140,17 @@ class BoardSerializer(ModelSerializer):
         fields = ["id", "title", "description" , "created_at"]
 
 
+class BoardFilterClass(FilterSet):
+    title = CharFilter(lookup_expr="icontains")
+
 class BoardViewSet(ModelViewSet):
     
         permission_classes = (IsAuthenticated,)
     
         queryset = Board.objects.all()
         serializer_class = BoardSerializer
+        filter_backends = (DjangoFilterBackend,)
+        filterset_class = BoardFilterClass
     
         def get_queryset(self):
             return Board.objects.filter(user=self.request.user, deleted=False)
@@ -143,4 +161,28 @@ class BoardViewSet(ModelViewSet):
         def perform_destroy(self, instance):
             return instance.soft_delete()
 
+class GetTasksCount(APIView):
+    """
+    Returns the number of tasks in each board
+    """
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, format=None):
+        """
+        Returns the number of tasks in each board
+        """
+        total_tasks = Task.objects.filter(user=request.user, deleted=False).count()
+        todo_tasks = Task.objects.filter(user=request.user, status="pending", deleted=False).count()
+        onprogress_tasks = Task.objects.filter(user=request.user, status="in_progress", deleted=False).count()
+        done_tasks = Task.objects.filter(user=request.user, status="completed", deleted=False).count()
+
+        response_json = {
+            "user": request.user.username,
+            "total": total_tasks,
+            "todo": todo_tasks,
+            "onprogress": onprogress_tasks,
+            "done": done_tasks,
+        }
+
+        return Response(response_json, status=200)
 

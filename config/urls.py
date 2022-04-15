@@ -15,7 +15,7 @@ from task_manager.tasks.views import (
      CreateTimeView, LoginView, SignUpView, GenericCancelledListView, GenericInProgressListView
 )
 
-from task_manager.tasks.api.views import TaskViewSet, HistoryViewSet, BoardViewSet
+from task_manager.tasks.api.views import GetTasksCount, TaskViewSet, HistoryViewSet, BoardViewSet
 
 from rest_framework_nested import routers
 # import DefaultRouter
@@ -80,6 +80,7 @@ urlpatterns += [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path(r'api/auth/', include('rest_auth.urls')),
     path(r'api/auth/registration/', include('rest_auth.registration.urls')),
+    path(r'api/tasks/count/', GetTasksCount.as_view(), name='get_tasks_count'),
 ]
 
 router = DefaultRouter()
