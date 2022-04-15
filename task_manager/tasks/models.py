@@ -62,28 +62,28 @@ class Task(models.Model):
         self.save()
 
     def save(self, *args, **kwargs):
-        # prevent priority collision
-        pr = self.priority
-        status = self.status
-        user = self.user
-        taskList = []  # store tasks to update
-        try:
-            taskCheck = Task.objects.get(
-                priority=pr, status=status, user=user, deleted=False
-            )
-            if taskCheck.pk == self.pk and taskCheck.priority == self.priority:
-                raise Task.DoesNotExist
-            while taskCheck:  # keep finding until DoesNotExist
-                pr += 1  # increase priority
-                taskCheck.priority = pr  # increment priority
-                taskList.append(taskCheck)  # append task to update
-                taskCheck = Task.objects.get(
-                    priority=pr, status=status, user=user, deleted=False
-                )  # update to next task
-        except Task.DoesNotExist:  # on error
-            pass  # skip
-        if taskList:
-            Task.objects.bulk_update(taskList, ["priority"])  # save at once
+        # # prevent priority collision
+        # pr = self.priority
+        # status = self.status
+        # user = self.user
+        # taskList = []  # store tasks to update
+        # try:
+        #     taskCheck = Task.objects.get(
+        #         priority=pr, status=status, user=user, deleted=False
+        #     )
+        #     if taskCheck.pk == self.pk and taskCheck.priority == self.priority:
+        #         raise Task.DoesNotExist
+        #     while taskCheck:  # keep finding until DoesNotExist
+        #         pr += 1  # increase priority
+        #         taskCheck.priority = pr  # increment priority
+        #         taskList.append(taskCheck)  # append task to update
+        #         taskCheck = Task.objects.get(
+        #             priority=pr, status=status, user=user, deleted=False
+        #         )  # update to next task
+        # except Task.DoesNotExist:  # on error
+        #     pass  # skip
+        # if taskList:
+        #     Task.objects.bulk_update(taskList, ["priority"])  # save at once
 
         # mark completed
         self.completed = self.status == "completed"
