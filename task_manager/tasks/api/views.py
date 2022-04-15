@@ -29,7 +29,7 @@ class FilterClass(FilterSet):
     )
     status = ChoiceFilter(choices=STATUS_CHOICES)
     priority = ChoiceFilter(choices=PRIORITY_CHOICES)
-    board = ChoiceFilter(choices=Board.objects.all().values_list("id", "title"))
+    board = ChoiceFilter(choices=Board.objects.filter(deleted=False).values_list("id", "title"))
 
 
 class UserSerializer(BaseSerializer):
