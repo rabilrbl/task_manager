@@ -51,12 +51,18 @@ class UserSerializer(BaseSerializer):
         ref_name = "user"
         fields = ("name", "username")
 
+class ShortBoardSerializer(ModelSerializer):
+    class Meta:
+        model = Board
+        fields = ("id", "title")
+
 
 class TaskSerializer(ModelSerializer):
 
     status = ChoiceFilter(choices=STATUS_CHOICES)
     priority = ChoiceFilter(choices=PRIORITY_CHOICES)
     created_by = UserSerializer(read_only=True)
+    board = ShortBoardSerializer(read_only=True)
 
 
     class Meta:
