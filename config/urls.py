@@ -23,6 +23,9 @@ from rest_framework.routers import DefaultRouter
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from drf_yasg.generators import OpenAPISchemaGenerator
+import os
+from dj_rest_auth.registration.views import VerifyEmailView, ConfirmEmailView
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -30,6 +33,11 @@ from rest_framework_simplejwt.views import (
 )
 
 ...
+
+# class SchemaGenerator(OpenAPISchemaGenerator):
+#     def determine_path_prefix(self, paths):
+#         path = super().determine_path_prefix(paths)
+#         return "api"+path
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -39,6 +47,7 @@ schema_view = get_schema_view(
       terms_of_service="https://www.google.com/policies/terms/",
       contact=openapi.Contact(email="rabil@email.com"),
       license=openapi.License(name="BSD License"),
+      url="/api/"
    ),
    public=True,
    permission_classes=[permissions.AllowAny],
@@ -68,8 +77,6 @@ urlpatterns = [
 urlpatterns += [
     # API base url
     path("api/", include("config.api_router")),
-    # DRF auth token
-    path("auth-token/", obtain_auth_token),
     path("api/schema/", SpectacularAPIView.as_view(), name="api-schema"),
     path(
         "api/docs/",
@@ -79,17 +86,16 @@ urlpatterns += [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path(r'api/auth/', include('rest_auth.urls')),
-    path(r'api/auth/registration/', include('rest_auth.registration.urls')),
     path(r'api/tasks/count/', GetTasksCount.as_view(), name='get_tasks_count'),
+    path(
+        'api/auth/registration/account-confirm-email/<str:key>/',
+        ConfirmEmailView.as_view(),
+    ), # Needs to be defined before the registration path
+    path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
+    path('api/auth/account-confirm-email/', VerifyEmailView.as_view(), name='account_email_verification_sent'),
 ]
 
-router = DefaultRouter()
-router.register(r'api/boards', BoardViewSet, basename='board')
-router.register(r'api/tasks', TaskViewSet, basename='tasks')
-client_router = routers.NestedSimpleRouter(
-     router, r'api/tasks', lookup='history',
-)
-client_router.register(r'history', HistoryViewSet, basename="history")
+
 
 
 # Api views
@@ -113,7 +119,7 @@ urlpatterns += [
     path("in-progress/", GenericInProgressListView.as_view(), name="in-progress"),
     path("cancelled/", GenericCancelledListView.as_view(), name="cancelled"),
     path("reports/", CreateTimeView.as_view(), name="reports"),
-] + router.urls + client_router.urls
+]
 
 if settings.DEBUG:
     # This allows the error pages to be debugged during development, just visit

@@ -50,6 +50,7 @@ class Task(models.Model):
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     board = models.ForeignKey("Board", on_delete=models.CASCADE)
+
     def __str__(self):
         return self.title
 
@@ -99,7 +100,11 @@ class Board(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def soft_delete(self):
+    # def soft_delete(self):
+    #     self.deleted = True
+    #     self.save()
+
+    def delete(self):
         self.deleted = True
         self.save()
 

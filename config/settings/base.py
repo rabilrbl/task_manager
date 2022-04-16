@@ -117,7 +117,7 @@ AUTH_USER_MODEL = "users.User"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-redirect-url
 LOGIN_REDIRECT_URL = "/tasks/"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-url
-LOGIN_URL = "/user/login/"
+LOGIN_URL = env("LOGIN_URL",default="/user/login/")
 
 # PASSWORDS
 # ------------------------------------------------------------------------------
@@ -345,15 +345,13 @@ TAILWIND_APP_NAME = 'task_manager'
 # django-rest-framework - https://www.django-rest-framework.org/api-guide/settings/
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
@@ -364,11 +362,11 @@ SWAGGER_SETTINGS = {
             'name': 'Authorization',
             'in': 'header'
       },
-      'Token': {
-            'type': 'apiKey',
-            'name': 'Authorization',
-            'in': 'header'
-      }
+    #   'Token': {
+    #         'type': 'apiKey',
+    #         'name': 'Authorization',
+    #         'in': 'header'
+    #   }
    }
 }
 
@@ -377,5 +375,15 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
 }
 
+# REST AUTH Config https://www.rootstrap.com/blog/registration-and-authentication-in-django-apps-with-dj-rest-auth/
+REST_AUTH_REGISTER_SERIALIZERS = {
+    'REGISTER_SERIALIZER': 'task_manager.users.serializers.CustomRegisterSerializer',
+}
+
+REST_AUTH_SERIALIZERS = {
+    'USER_DETAILS_SERIALIZER': 'task_manager.users.serializers.CustomUserDetailsSerializer',
+}
+
 ACCOUNT_LOGOUT_ON_GET=False
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True 
 

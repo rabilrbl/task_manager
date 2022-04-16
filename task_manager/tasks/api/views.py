@@ -54,7 +54,7 @@ class UserSerializer(BaseSerializer):
 class ShortBoardSerializer(ModelSerializer):
     class Meta:
         model = Board
-        fields = ("id", "title")
+        fields = ("title",)
 
 
 class TaskSerializer(ModelSerializer):
@@ -62,7 +62,6 @@ class TaskSerializer(ModelSerializer):
     status = ChoiceFilter(choices=STATUS_CHOICES)
     priority = ChoiceFilter(choices=PRIORITY_CHOICES)
     created_by = UserSerializer(read_only=True)
-    board = ShortBoardSerializer(read_only=True)
 
 
     class Meta:
@@ -70,7 +69,7 @@ class TaskSerializer(ModelSerializer):
         fields = [
             "id", "title", "priority",
             "description", "date_created",
-            "status", "created_by", "board"
+            "status", "created_by", "board", 
         ]
 
 class TaskViewSet(ModelViewSet, APIView):
@@ -94,7 +93,7 @@ class TaskViewSet(ModelViewSet, APIView):
 
 
     def get_queryset(self):
-        return Task.objects.filter(user=self.request.user, deleted=False)
+        return Task.objects.filter(user=self.request.user, board__deleted=False,deleted=False)
 
     def perform_create(self, serializer):
         return serializer.save(user=self.request.user)
@@ -135,9 +134,7 @@ class HistoryViewSet(ReadOnlyModelViewSet):
 
     def get_queryset(self):
         # allow access to only the user's history
-        return History.objects.filter(
-            task=self.kwargs["history_pk"],
-            task__user=self.request.user, task__deleted=False,
+        return History.objects.filter(task__user=self.request.user, task__deleted=False,
         ).order_by("-change_date")
 
 class BoardSerializer(ModelSerializer):
@@ -163,9 +160,6 @@ class BoardViewSet(ModelViewSet):
     
         def perform_create(self, serializer):
             return serializer.save(user=self.request.user)
-    
-        def perform_destroy(self, instance):
-            return instance.soft_delete()
 
 class GetTasksCount(APIView):
     """
