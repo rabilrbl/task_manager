@@ -170,7 +170,7 @@ class GetTasksCount(APIView):
         done_tasks = Task.objects.filter(user=request.user, status="completed", deleted=False).count()
 
         response_json = {
-            "user": request.user.username,
+            "user": request.user.name,
             "total": total_tasks,
             "todo": todo_tasks,
             "onprogress": onprogress_tasks,
