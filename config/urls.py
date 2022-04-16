@@ -91,7 +91,7 @@ urlpatterns += [
         'api/auth/registration/account-confirm-email/<str:key>/',
         ConfirmEmailView.as_view(),
     ), # Needs to be defined before the registration path
-    path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
+    path('api/auth/registration/', include('rest_auth.registration.urls')),
     path('api/auth/account-confirm-email/', VerifyEmailView.as_view(), name='account_email_verification_sent'),
 ]
 
