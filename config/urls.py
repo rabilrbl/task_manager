@@ -86,7 +86,7 @@ urlpatterns += [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path(r'api/auth/', include('rest_auth.urls')),
-    path(r'api/tasks/count/', GetTasksCount.as_view(), name='get_tasks_count'),
+    path(r'api/count/', GetTasksCount.as_view(), name='get_tasks_count'),
     path(
         'api/auth/registration/account-confirm-email/<str:key>/',
         ConfirmEmailView.as_view(),
