@@ -25,7 +25,7 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from drf_yasg.generators import OpenAPISchemaGenerator
 import os
-from dj_rest_auth.registration.views import VerifyEmailView, ConfirmEmailView
+from rest_auth.registration.views import VerifyEmailView, ConfirmEmailView
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
