@@ -23,7 +23,7 @@ from django_filters.rest_framework import (
 )
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.serializers import BaseSerializer, ModelSerializer
+from rest_framework.serializers import ModelSerializer, CharField
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
@@ -45,31 +45,24 @@ class FilterClass(FilterSet):
     # board = ChoiceFilter(choices=Board.objects.filter(deleted=False).values_list("id", "title"))
 
 
-class UserSerializer(BaseSerializer):
-    class Meta:
-        model = User
-        ref_name = "user"
-        fields = ("name", "username")
-
-class ShortBoardSerializer(BaseSerializer):
-    class Meta:
-        model = Board
-        fields = ("id","title",)
+# class UserSerializer(ModelSerializer):
+#     class Meta:
+#         model = User
+#         ref_name = "user"
+#         fields = ("name", "username")
 
 
 class TaskSerializer(ModelSerializer):
 
     status = ChoiceFilter(choices=STATUS_CHOICES)
     priority = ChoiceFilter(choices=PRIORITY_CHOICES)
-    created_by = UserSerializer(read_only=True)
-    board_info = ShortBoardSerializer(read_only=True)
-
+    board_title = CharField(source="board.title", read_only=True)
     class Meta:
         model = Task
         fields = [
             "id", "title", "priority",
             "description", "date_created",
-            "status", "created_by", "board","board_info", 
+            "status", "board", "board_title"
         ]
 
 class TaskViewSet(ModelViewSet, APIView):
