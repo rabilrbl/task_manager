@@ -15,6 +15,7 @@ app_name = "api"
 router.register("users", UserViewSet)
 
 router.register(r'boards', BoardViewSet)
+router.register(r'tasks', TaskViewSet)
 board_router = routers.NestedSimpleRouter(router, r'boards', lookup='board')
 board_router.register(r'tasks', TaskViewSet)
 client_router = routers.NestedSimpleRouter(board_router, r'tasks', lookup='task')
