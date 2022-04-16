@@ -173,6 +173,8 @@ class GetTasksCount(APIView):
         onprogress_tasks = Task.objects.filter(user=request.user, status="in_progress", deleted=False).count()
         done_tasks = Task.objects.filter(user=request.user, status="completed", deleted=False).count()
 
+        permission_classes = (IsAuthenticated,)
+
         response_json = {
             "user": request.user.name,
             "total": total_tasks,
@@ -182,4 +184,26 @@ class GetTasksCount(APIView):
         }
 
         return Response(response_json, status=200)
+
+
+class GetBoardsList(APIView):
+    """
+    Returns the list of boards
+    """
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, format=None):
+        """
+        Returns the list of boards
+        """
+        boards = Board.objects.filter(user=request.user, deleted=False).values("id", "title")
+        count = boards.count()
+
+        response_json = {
+            "count": count,
+            "boards": boards,
+        }
+
+        return Response(response_json, status=200)
+
 
