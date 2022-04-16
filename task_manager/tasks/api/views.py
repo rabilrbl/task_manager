@@ -51,10 +51,10 @@ class UserSerializer(BaseSerializer):
         ref_name = "user"
         fields = ("name", "username")
 
-class ShortBoardSerializer(ModelSerializer):
+class ShortBoardSerializer(BaseSerializer):
     class Meta:
         model = Board
-        fields = ("title",)
+        fields = ("id","title",)
 
 
 class TaskSerializer(ModelSerializer):
@@ -62,14 +62,14 @@ class TaskSerializer(ModelSerializer):
     status = ChoiceFilter(choices=STATUS_CHOICES)
     priority = ChoiceFilter(choices=PRIORITY_CHOICES)
     created_by = UserSerializer(read_only=True)
-
+    board_info = ShortBoardSerializer(read_only=True)
 
     class Meta:
         model = Task
         fields = [
             "id", "title", "priority",
             "description", "date_created",
-            "status", "created_by", "board", 
+            "status", "created_by", "board","board_info", 
         ]
 
 class TaskViewSet(ModelViewSet, APIView):
