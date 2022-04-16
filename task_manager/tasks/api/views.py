@@ -86,6 +86,9 @@ class TaskViewSet(ModelViewSet, APIView):
 
 
     def get_queryset(self):
+        id = self.kwargs["board_pk"] if "board_pk" in self.kwargs else None
+        if id:
+            return Task.objects.filter(user=self.request.user, board__deleted=False,deleted=False, board__id=id)
         return Task.objects.filter(user=self.request.user, board__deleted=False,deleted=False)
 
     def perform_create(self, serializer):
@@ -127,7 +130,8 @@ class HistoryViewSet(ReadOnlyModelViewSet):
 
     def get_queryset(self):
         # allow access to only the user's history
-        return History.objects.filter(task__user=self.request.user, task__deleted=False,
+        id = self.kwargs["task_pk"] if "task_pk" in self.kwargs else None
+        return History.objects.filter(task__user=self.request.user, task__deleted=False, task__id=id
         ).order_by("-change_date")
 
 class BoardSerializer(ModelSerializer):
