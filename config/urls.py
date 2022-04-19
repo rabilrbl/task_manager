@@ -88,7 +88,7 @@ urlpatterns += [
     path(r'api/auth/', include('rest_auth.urls')),
     path(r'api/count/', GetTasksCount.as_view(), name='get_tasks_count'),
     path(r'api/list/boards/', GetBoardsList.as_view(), name='get_boards_list'),
-    path(r'api/list/status/<int:board_pk>/<int:pk>/', GetStatusesList.as_view(), name='get_statuses_list'),
+    path(r'api/list/status/<int:board_pk>/', GetStatusesList.as_view(), name='get_statuses_list'),
     path(
         'api/auth/registration/account-confirm-email/<str:key>/',
         ConfirmEmailView.as_view(),

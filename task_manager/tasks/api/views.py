@@ -240,20 +240,26 @@ class GetStatusesList(APIView):
     """
     permission_classes = (IsAuthenticated,)
 
-    def get(self, request, board_pk, pk,format=None):
+    def get(self, request, board_pk,format=None):
         """
         Returns status and corresponding tasks
         """
-        tasks = Task.objects.filter(user=request.user,status__id=pk, board__id=board_pk, deleted=False).values("id", "title", "description", "priority", "completed", "date_created")
-        count = tasks.count()
-        id = pk
-        response_json = {
-            "id": id,
-            "name": Status.objects.get(id=id).title,
-            "count": count,
-            "tasks": tasks,
-        }
+        tasks = Task.objects.filter(user=request.user, board__id=board_pk, deleted=False)
         
+        res = []
+
+        for status in Status.objects.filter(board__id=board_pk, deleted=False):
+            res.append({
+                "id": status.id,
+                "count": tasks.filter(status=status).count(),
+                "title": status.title,
+                "tasks": tasks.filter(status=status).values("id", "title", "description", "priority", "completed", "date_created"),
+            })
+
+        response_json = {
+            "results": res,
+        }
+
         return Response(response_json, status=200)
 
 
