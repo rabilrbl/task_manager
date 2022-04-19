@@ -16,6 +16,7 @@ router.register("users", UserViewSet)
 
 router.register(r'boards', BoardViewSet)
 router.register(r'tasks', TaskViewSet)
+router.register(r'status', StatusViewSet)
 board_router = routers.NestedSimpleRouter(router, r'boards', lookup='board')
 board_router.register(r'tasks', TaskViewSet)
 board_router.register(r'status', StatusViewSet)
