@@ -234,3 +234,26 @@ class GetBoardsList(APIView):
         return Response(response_json, status=200)
 
 
+class GetStatusesList(APIView):
+    """
+    Returns status and corresponding tasks
+    """
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, board_pk, pk,format=None):
+        """
+        Returns status and corresponding tasks
+        """
+        tasks = Task.objects.filter(user=request.user,status__id=pk, board__id=board_pk, deleted=False).values()
+        count = tasks.count()
+        id = pk
+        response_json = {
+            "id": id,
+            "count": count,
+            "tasks": tasks,
+        }
+        
+        return Response(response_json, status=200)
+
+
+
