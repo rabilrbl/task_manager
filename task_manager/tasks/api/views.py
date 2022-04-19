@@ -6,10 +6,10 @@ from django.contrib.auth import get_user_model
 
 from task_manager.tasks.models import (
     PRIORITY_CHOICES,
-    STATUS_CHOICES,
     Board,
     History,
     Task,
+    Status
 )
 
 User = get_user_model()
@@ -40,7 +40,7 @@ class FilterClass(FilterSet):
             (False, "Non-completed tasks"),
         )
     )
-    status = ChoiceFilter(choices=STATUS_CHOICES)
+    status = ChoiceFilter(choices=Status.objects.filter(deleted=False).values_list("id", "title"))
     priority = ChoiceFilter(choices=PRIORITY_CHOICES)
     # board = ChoiceFilter(choices=Board.objects.filter(deleted=False).values_list("id", "title"))
 
@@ -54,7 +54,6 @@ class FilterClass(FilterSet):
 
 class TaskSerializer(ModelSerializer):
 
-    status = ChoiceFilter(choices=STATUS_CHOICES)
     priority = ChoiceFilter(choices=PRIORITY_CHOICES)
     board_title = CharField(source="board.title", read_only=True)
     class Meta:
@@ -101,8 +100,8 @@ class TaskViewSet(ModelViewSet, APIView):
 class HistoryFilter(FilterSet):
     # Filter date and time
     change_date = IsoDateTimeFilter(label="Modified Date Time")
-    new_status = ChoiceFilter(choices=STATUS_CHOICES)
-    old_status = ChoiceFilter(choices=STATUS_CHOICES)
+    new_status = ChoiceFilter(choices=Status.objects.filter(deleted=False).values_list("id", "title"))
+    old_status = ChoiceFilter(choices=Status.objects.filter(deleted=False).values_list("id", "title"))
 
 
 class HistTaskSer(ModelSerializer):
@@ -158,6 +157,37 @@ class BoardViewSet(ModelViewSet):
         def perform_create(self, serializer):
             return serializer.save(user=self.request.user)
 
+
+class StatusSerializer(ModelSerializer):
+    class Meta:
+        model = Status
+        fields = ["id", "title"]
+
+    
+class StatusFilterClass(FilterSet):
+    title = CharFilter(lookup_expr="icontains")
+    board = ChoiceFilter(choices=Board.objects.filter(deleted=False).values_list("id", "title"))
+
+
+class StatusViewSet(ModelViewSet):
+    permission_classes = (IsAuthenticated,)
+    queryset = Status.objects.all()
+    serializer_class = StatusSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = StatusFilterClass
+
+
+    def get_queryset(self):
+        id = self.kwargs["board_pk"] if "board_pk" in self.kwargs else None
+        if id:
+            return Status.objects.filter(user=self.request.user,board__id=id, board__deleted=False)
+        return Status.objects.filter(user=self.request.user, deleted=False)
+    
+    def perform_create(self, serializer):
+        return serializer.save(user=self.request.user,board=Board.objects.get(id=self.kwargs["board_pk"]))
+    
+
+
 class GetTasksCount(APIView):
     """
     Returns the number of tasks in each board
@@ -169,18 +199,15 @@ class GetTasksCount(APIView):
         Returns the number of tasks in each board
         """
         total_tasks = Task.objects.filter(user=request.user, deleted=False).count()
-        todo_tasks = Task.objects.filter(user=request.user, status="pending", deleted=False).count()
-        onprogress_tasks = Task.objects.filter(user=request.user, status="in_progress", deleted=False).count()
-        done_tasks = Task.objects.filter(user=request.user, status="completed", deleted=False).count()
-
+        incomplete = Task.objects.filter(user=request.user, completed=False, deleted=False).count()
+        completed = Task.objects.filter(user=request.user, completed=True, deleted=False).count()
         permission_classes = (IsAuthenticated,)
 
         response_json = {
             "user": request.user.name,
             "total": total_tasks,
-            "todo": todo_tasks,
-            "onprogress": onprogress_tasks,
-            "done": done_tasks,
+            "incomplete": incomplete,
+            "completed": completed,
         }
 
         return Response(response_json, status=200)
