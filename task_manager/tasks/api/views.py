@@ -244,11 +244,12 @@ class GetStatusesList(APIView):
         """
         Returns status and corresponding tasks
         """
-        tasks = Task.objects.filter(user=request.user,status__id=pk, board__id=board_pk, deleted=False).values()
+        tasks = Task.objects.filter(user=request.user,status__id=pk, board__id=board_pk, deleted=False).values("id", "title", "description", "priority", "completed", "date_created")
         count = tasks.count()
         id = pk
         response_json = {
             "id": id,
+            "name": Status.objects.get(id=id).title,
             "count": count,
             "tasks": tasks,
         }
