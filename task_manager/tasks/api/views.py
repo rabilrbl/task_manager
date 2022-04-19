@@ -180,7 +180,7 @@ class StatusViewSet(ModelViewSet):
     def get_queryset(self):
         id = self.kwargs["board_pk"] if "board_pk" in self.kwargs else None
         if id:
-            return Status.objects.filter(user=self.request.user,board__id=id, board__deleted=False)
+            return Status.objects.filter(user=self.request.user,board__id=id, board__deleted=False, deleted=False)
         return Status.objects.filter(user=self.request.user, deleted=False)
     
     def perform_create(self, serializer):
