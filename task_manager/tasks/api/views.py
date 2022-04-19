@@ -61,7 +61,7 @@ class TaskSerializer(ModelSerializer):
         fields = [
             "id", "title", "priority",
             "description", "date_created",
-            "status", "board", "board_title"
+            "status", "board", "board_title",  "completed"
         ]
 
 class TaskViewSet(ModelViewSet, APIView):
