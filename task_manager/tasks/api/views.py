@@ -253,7 +253,7 @@ class GetStatusesList(APIView):
                 "id": status.id,
                 "count": tasks.filter(status=status).count(),
                 "title": status.title,
-                "tasks": tasks.filter(status=status).values("id", "title", "description", "priority", "completed", "date_created"),
+                "tasks": tasks.filter(status=status).values("id", "title", "status", "description", "priority", "completed", "date_created"),
             })
 
         response_json = {
